@@ -44,8 +44,8 @@ trapexit() {
   fi
   
   # Cleanup
-  apt-get remove --purge -y $DEVDEPS -qq &>/dev/null
-  apt-get autoremove -y -qq &>/dev/null
+  apt remove --purge -y $DEVDEPS -qq &>/dev/null
+  apt autoremove -y -qq &>/dev/null
   apt-get clean
   rm -rf $TEMPDIR
   rm -rf /root/.cache
@@ -69,13 +69,13 @@ fi
 
 # Install dependencies
 log "Installing dependencies"
-runcmd apt-get update
+runcmd apt update
 export DEBIAN_FRONTEND=noninteractive
-runcmd 'apt-get install -y --no-install-recommends $DEVDEPS gnupg openssl ca-certificates apache2-utils logrotate'
+runcmd 'apt install -y --no-install-recommends $DEVDEPS gnupg openssl ca-certificates apache2-utils logrotate'
 
 # Install Python
 log "Installing python"
-runcmd apt-get install -y -q --no-install-recommends python3 python3-distutils python3-venv
+runcmd apt install -y -q --no-install-recommends python3 python3-distutils python3-venv
 python3 -m venv /opt/certbot/
 export PATH=/opt/certbot/bin:$PATH
 grep -qo "/opt/certbot" /etc/environment || echo "$PATH" > /etc/environment
@@ -88,19 +88,20 @@ runcmd pip install --no-cache-dir cffi certbot
 
 # Install openresty
 log "Installing openresty"
-wget -qO - https://openresty.org/package/pubkey.gpg | apt-key add -
+wget -qO - https://openresty.org/package/pubkey.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/openresty.gpg > /dev/null
 _distro_release=$(wget $WGETOPT "http://openresty.org/package/$DISTRO_ID/dists/" -O - | grep -o "$DISTRO_CODENAME" | head -n1 || true)
 if [ $DISTRO_ID = "ubuntu" ]; then
   echo "deb [trusted=yes] http://openresty.org/package/$DISTRO_ID ${_distro_release:-focal} main" | tee /etc/apt/sources.list.d/openresty.list
 else
   echo "deb [trusted=yes] http://openresty.org/package/$DISTRO_ID ${_distro_release:-bullseye} openresty" | tee /etc/apt/sources.list.d/openresty.list
 fi
-runcmd apt-get update && apt-get install -y -q --no-install-recommends openresty
+runcmd apt update && apt install -y -q --no-install-recommends openresty
+
 
 # Install nodejs
 log "Installing nodejs"
 runcmd wget -qO - https://deb.nodesource.com/setup_16.x | bash -
-runcmd apt-get install -y -q --no-install-recommends nodejs
+runcmd apt install -y -q --no-install-recommends nodejs
 runcmd npm install --global yarn
 
 # Get latest version information for nginx-proxy-manager
