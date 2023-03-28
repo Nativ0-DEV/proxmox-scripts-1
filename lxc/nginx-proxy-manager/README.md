@@ -49,4 +49,4 @@ wget --no-cache -qO - https://github.com/Nativ0-DEV/proxmox-scripts-1/blob/main/
 
 ## Thanks
 
-- [whiskerz007](https://github.com/whiskerz007?tab=repositories)
+- [ej52 - Elton Renda](https://github.com/ej52)
